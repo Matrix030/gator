@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/Matrix030/gator/internal/config"
+	_ "github.com/lib/pq"
 	"log"
 	"os"
-
-	"github.com/Matrix030/gator/internal/config"
 )
 
 func main() {
