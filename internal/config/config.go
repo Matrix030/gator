@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+
+	"github.com/Matrix030/gator/internal/database"
 )
 
 const configFileName = ".gatorconfig.json"
