@@ -10,7 +10,6 @@ import (
 )
 
 func handlerRegisterUsers(s *state, cmd command) error {
-
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <name>", cmd.Name)
 	}
