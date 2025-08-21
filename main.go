@@ -1,40 +1,58 @@
 package main
 
 import (
-	"fmt"
+	"database/sql"
 	"github.com/Matrix030/gator/internal/config"
+	"github.com/Matrix030/gator/internal/database"
 	_ "github.com/lib/pq"
 	"log"
 	"os"
 )
 
-func main() {
-	// 1) Check for at least 2 args: program name + command
-	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "error: not enough arguments\nusage: gator <command> [args]")
-		os.Exit(1)
-	}
+type state struct {
+	db  *database.Queries
+	cfg *config.Config
+}
 
-	// 2) Read config from file
+func main() {
 	cfg, err := config.Read()
 	if err != nil {
-		// config read failure is a hard error
 		log.Fatalf("error reading config: %v", err)
 	}
 
-	// 3) Build state
-	s := &State{cfg: &cfg}
+	//database stuff
+	db, err := sql.Open("postgres", cfg.DBURL)
+	if err != nil {
+		log.Fatal("Could not connect to the database")
+	}
 
-	// 4) Register commands
-	cmds := &Commands{}
+	defer db.Close()
+	dbQueries := database.New(db)
+
+	programState := &state{
+		db:  dbQueries,
+		cfg: &cfg,
+	}
+
+	//commands to be regitered
+	cmds := commands{
+		registeredCommands: make(map[string]func(*state, command) error),
+	}
+
+	//registering commands
 	cmds.register("login", handlerLogin)
-	// 5) Split CLI input into command name + args
-	name := os.Args[1]
-	args := os.Args[2:] // everything after the command name
+	cmds.register("register", handlerRegisterUsers)
+	cmds.register("reset", handlerReset)
 
-	// 6) Run command, print any error, exit 1 on failure
-	if err := cmds.run(s, Command{Name: name, Args: args}); err != nil {
-		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(1)
+	if len(os.Args) < 2 {
+		log.Fatal("Usage: cli <command> [args...]")
+	}
+
+	cmdName := os.Args[1]
+	cmdArgs := os.Args[2:]
+
+	err = cmds.run(programState, command{Name: cmdName, Args: cmdArgs})
+	if err != nil {
+		log.Fatal(err)
 	}
 }
