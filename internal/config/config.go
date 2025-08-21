@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-
-	"github.com/Matrix030/gator/internal/database"
 )
 
 const configFileName = ".gatorconfig.json"
@@ -30,7 +28,6 @@ func Read() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
-
 	defer file.Close()
 
 	decoder := json.NewDecoder(file)
@@ -41,7 +38,6 @@ func Read() (Config, error) {
 	}
 
 	return cfg, nil
-
 }
 
 func getConfigFilePath() (string, error) {
@@ -49,7 +45,6 @@ func getConfigFilePath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	fullPath := filepath.Join(home, configFileName)
 	return fullPath, nil
 }
@@ -64,7 +59,6 @@ func write(cfg Config) error {
 	if err != nil {
 		return err
 	}
-
 	defer file.Close()
 
 	encoder := json.NewEncoder(file)
