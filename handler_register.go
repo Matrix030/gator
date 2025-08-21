@@ -27,7 +27,7 @@ func handlerRegisterUsers(s *state, cmd command) error {
 		Name:      name,
 	}
 
-	user, err := s.db.CreateUser(ctx, params)
+	_, err := s.db.CreateUser(ctx, params)
 	if err != nil {
 		fmt.Println("could not create user:", err)
 		os.Exit(1)
@@ -38,6 +38,5 @@ func handlerRegisterUsers(s *state, cmd command) error {
 	}
 
 	fmt.Printf("User %q created\n", name)
-	fmt.Printf("debug: %v\n", user)
 	return nil
 }

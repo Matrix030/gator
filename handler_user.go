@@ -14,7 +14,7 @@ func handlerLogin(s *state, cmd command) error {
 
 	ctx := context.Background()
 
-	user, err := s.db.GetUser(ctx, name)
+	_, err := s.db.GetUser(ctx, name)
 	if err != nil {
 		fmt.Println("user not available", err)
 		os.Exit(1)
@@ -26,7 +26,6 @@ func handlerLogin(s *state, cmd command) error {
 	}
 
 	fmt.Println("User found and switched successfully!")
-	fmt.Printf("debug: %v\n", user)
 
 	return nil
 }
