@@ -9,17 +9,12 @@ import (
 	db "github.com/Matrix030/gator/internal/database"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user db.User) error {
 	if len(cmd.Args) != 2 {
 		return errors.New("Usage: addfeed [feed_name] [url]")
 	}
 
 	ctx := context.Background()
-
-	user, err := s.db.GetUser(ctx, s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("current user not found: %w", err)
-	}
 
 	feedName := cmd.Args[0]
 	URL := cmd.Args[1]
@@ -46,4 +41,3 @@ func handlerAddFeed(s *state, cmd command) error {
 	fmt.Printf("Feed %q (%s) created and followed by %s\n", feed.Name, feed.Url, user.Name)
 	return nil
 }
-
