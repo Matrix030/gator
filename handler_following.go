@@ -3,21 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
+	db "github.com/Matrix030/gator/internal/database"
 )
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, user db.User) error {
 	if len(cmd.Args) != 0 {
 		return fmt.Errorf("usage: %s", cmd.Name)
 	}
 
 	ctx := context.Background()
 
-	u, err := s.db.GetUser(ctx, s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("current user not found: %w", err)
-	}
-
-	rows, err := s.db.GetFeedFollowsForUser(ctx, u.ID)
+	rows, err := s.db.GetFeedFollowsForUser(ctx, user.ID)
 	if err != nil {
 		return fmt.Errorf("Could not fetch follows: %w", err)
 	}
