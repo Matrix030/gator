@@ -10,29 +10,40 @@ import (
 )
 
 func handlerAddFeed(s *state, cmd command) error {
-	ctx := context.Background()
-	user, err := s.db.GetUser(ctx, s.cfg.CurrentUserName)
-	if err != nil {
-		return err
-	}
 	if len(cmd.Args) != 2 {
 		return errors.New("Usage: addfeed [feed_name] [url]")
 	}
+
+	ctx := context.Background()
+
+	user, err := s.db.GetUser(ctx, s.cfg.CurrentUserName)
+	if err != nil {
+		return fmt.Errorf("current user not found: %w", err)
+	}
+
 	feedName := cmd.Args[0]
 	URL := cmd.Args[1]
 
-	params := db.CreateFeedParams{
+	feed, err := s.db.CreateFeed(ctx, db.CreateFeedParams{
 		Name:   feedName,
 		Url:    URL,
 		UserID: user.ID,
-	}
-
-	feed, err := s.db.CreateFeed(ctx, params)
+	})
 	if err != nil {
-		fmt.Println("Could not create feed: ", err)
+		fmt.Println("Could not create feed:", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("feed %q created\n", feed.ID)
+	_, err = s.db.CreateFeedFollow(ctx, db.CreateFeedFollowParams{
+		UserID: user.ID,
+		FeedID: feed.ID,
+	})
+	if err != nil {
+		fmt.Println("Could not create follow:", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Feed %q (%s) created and followed by %s\n", feed.Name, feed.Url, user.Name)
 	return nil
 }
+

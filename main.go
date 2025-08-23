@@ -29,6 +29,7 @@ func main() {
 	defer db.Close()
 	dbQueries := database.New(db)
 
+	//initialize a program state with database and global program configs
 	programState := &state{
 		db:  dbQueries,
 		cfg: &cfg,
@@ -47,13 +48,18 @@ func main() {
 	cmds.register("agg", handlerAggregation)
 	cmds.register("addfeed", handlerAddFeed)
 	cmds.register("feeds", handlerFeedsList)
+	cmds.register("follow", handlerFollow)
+	cmds.register("following", handlerFollowing)
+	//check if the command is correct
 	if len(os.Args) < 2 {
 		log.Fatal("Usage: cli <command> [args...]")
 	}
 
+	//get command name and arguments for running the commmand
 	cmdName := os.Args[1]
 	cmdArgs := os.Args[2:]
 
+	//run the command
 	err = cmds.run(programState, command{Name: cmdName, Args: cmdArgs})
 	if err != nil {
 		log.Fatal(err)
